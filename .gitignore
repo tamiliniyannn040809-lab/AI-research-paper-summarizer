@@ -1,7 +1,11 @@
 .env
 .streamlit/secrets.toml
+.streamlit/.streamlit/
 __pycache__/
 *.py[cod]
+*.pyc
 .venv/
 venv/
 .DS_Store
+.flake8
+
