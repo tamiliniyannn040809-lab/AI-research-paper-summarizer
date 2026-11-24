@@ -8,6 +8,12 @@ from utils.pdf_processor import extract_pdf, split_into_chunks, rank_chunks
 from utils.ai_engine import summarize_paper, compare_papers, answer_question
 
 
+API_KEY_MISSING_MESSAGE = (
+    "AI features are unavailable. The app owner must configure GROQ_API_KEY "
+    "in the deployment environment or Streamlit Secrets."
+)
+
+
 st.set_page_config(
     page_title="PaperLens | AI Research Summarizer",
     page_icon="📘",
@@ -106,12 +112,11 @@ with st.sidebar:
     st.markdown("---")
     st.markdown("### AI configuration")
 
-    api_key = st.text_input(
-        "Groq API key",
-        value=get_secret_key(),
-        type="password",
-        help="For deployment, store this in Streamlit Secrets instead of sharing it.",
-    )
+    api_key = get_secret_key()
+    if api_key:
+        st.caption("Groq API key is configured on the server.")
+    else:
+        st.warning(API_KEY_MISSING_MESSAGE)
 
     # Updated Groq model IDs; retired Llama model IDs have been removed.
     model = st.selectbox(
@@ -221,7 +226,7 @@ with tab_summary:
 
         if st.button("Generate summary", type="primary", key="generate_summary"):
             if not api_key:
-                st.error("Add your Groq API key in the sidebar first.")
+                st.error(API_KEY_MISSING_MESSAGE)
             else:
                 try:
                     with st.spinner(
@@ -270,7 +275,7 @@ with tab_compare:
 
         if st.button("Compare selected papers", type="primary", key="compare_button"):
             if not api_key:
-                st.error("Add your Groq API key in the sidebar first.")
+                st.error(API_KEY_MISSING_MESSAGE)
             elif len(chosen_names) < 2:
                 st.warning("Select at least two papers.")
             else:
@@ -336,7 +341,7 @@ with tab_chat:
 
         if st.button("Ask PaperLens", type="primary", key="ask_button"):
             if not api_key:
-                st.error("Add your Groq API key in the sidebar first.")
+                st.error(API_KEY_MISSING_MESSAGE)
             elif not question.strip():
                 st.warning("Enter a question first.")
             elif not chat_paper_names:
